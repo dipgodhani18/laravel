@@ -58,4 +58,12 @@ class TeacherController extends Controller
         };
         return back()->with('message', 'Invalid Credentials')->withInput($request->except('password'));
     }
+
+    public function logout(Request $request)
+    {
+        Auth::guard('teacher')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        return redirect()->route('teacher.login');
+    }
 }
