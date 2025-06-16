@@ -1,4 +1,5 @@
  @extends('admin.layout.app')
+
  @section('adminContent')
  <main>
      <div class="container-fluid px-4">
@@ -554,4 +555,4 @@
          </div>
      </div>
  </main>
- @endsection('adminContent')
+ @endsection

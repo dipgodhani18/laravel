@@ -17,8 +17,8 @@ class TeacherMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
-        if (Auth::guard('teacher')->check()) {
-            return redirect()->route('teacher.login')->with('message', 'Please Login!');
+        if (!Auth::guard('teacher')->check()) {
+            return redirect()->route('teacher.login')->with('message', 'Please login first!');
         }
         return $next($request);
     }
