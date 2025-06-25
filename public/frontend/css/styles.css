@@ -1,0 +1,32 @@
+@import url("https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100..700;1,100..700&family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&family=Signika+Negative:wght@300..700&display=swap");
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    scroll-behavior: smooth;
+    font-family: "Signika Negative", sans-serif;
+    font-optical-sizing: auto;
+    font-style: normal;
+}
+
+.masthead-section {
+    position: relative;
+    background-image: url("../assets/img/bg-masthead.jpg");
+    background-size: cover;
+    background-position: center;
+    background-attachment: scroll;
+    z-index: 1;
+}
+
+.masthead-section::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5); /* Change 0.5 to control opacity */
+    z-index: -1;
+}
