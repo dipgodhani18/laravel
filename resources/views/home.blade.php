@@ -19,7 +19,7 @@
             <div class="hidden md:flex space-x-6">
                 <a class="hover:text-gray-50 font-semibold" href="#about">About</a>
                 <a class="hover:text-gray-50 font-semibold" href="#profile">Profile</a>
-                <a class="hover:text-gray-50 font-semibold" href="#">View Plans</a>
+                <a class="hover:text-gray-50 font-semibold" href="{{route('subscription')}}">Subscription</a>
                 <a class="hover:text-red-400 font-semibold" href="#"
                     onclick="event.preventDefault(); document.getElementById('logout_form').submit();">Logout</a>
 
