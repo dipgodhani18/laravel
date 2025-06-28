@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\SubscriptionHelper;
 use App\Models\CardDetail;
 use App\Models\SubscriptionDetails;
 use App\Models\SubscriptionPlan;
@@ -37,29 +38,30 @@ class SubscriptionController extends Controller
     public function createSubscription(Request $request)
     {
         try {
-            Stripe::setApiKey(env('STRIPE_SECRET_KEY'));
-
+            $user_id = auth()->user()->id;
+            $secretKey = env('STRIPE_SECRET_KEY');
+            Stripe::setApiKey($secretKey);
             $stripeData = $request->input('data');
 
             $customer = $this->createCustomer($stripeData['id']);
+            $customer_id = $customer['id'];
 
-            if ($customer) {
-                CardDetail::create([
-                    'user_id' => auth()->user()->id,
-                    'customer_id' => $customer->id,
-                    'card_id' => $stripeData['card']['id'],
-                    'name' => $stripeData['card']['name'],
-                    'card_number' => $stripeData['card']['last4'],
-                    'brand' => $stripeData['card']['brand'],
-                    'month' => $stripeData['card']['exp_month'],
-                    'year' => $stripeData['card']['exp_year'],
-                    'created_at' => date('Y-m-d H:i:s'),
-                    'updated_at' => date('Y-m-d H:i:s'),
-                ]);
+            $subscriptionPlan = SubscriptionPlan::where('id', $request->plan_id)->first();
 
-                return response()->json(['success' => true, 'msg' => 'Customer Created!', 'customer' => $customer]);
+            if ($subscriptionPlan->type == 0) { // monthly trial
+                $subscriptionData =  SubscriptionHelper::start_monthly_trial_subscription($customer_id, $user_id, $subscriptionPlan);
+            } else if ($subscriptionPlan->type == 1) { // yearly trial
+                $subscriptionData =  SubscriptionHelper::start_yearly_trial_subscription($customer_id, $user_id, $subscriptionPlan);
+            } else if ($subscriptionPlan->type == 2) { // lifetime trial
+                $subscriptionData =  SubscriptionHelper::start_lifetime_trial_subscription($customer_id, $user_id, $subscriptionPlan);
+            }
+
+            $this->saveCardDetails($stripeData, $user_id, $customer_id);
+
+            if ($subscriptionData) {
+                return response()->json(['success' => true, 'msg' => 'Subscription purchased!']);
             } else {
-                return response()->json(['success' => false, 'msg' => 'Failed to create customer!']);
+                return response()->json(['success' => false, 'msg' => 'Subscription purchased failed!']);
             }
         } catch (\Exception $e) {
             return response()->json([
@@ -78,5 +80,21 @@ class SubscriptionController extends Controller
         ]);
 
         return $customer;
+    }
+
+    public function saveCardDetails($cardData, $user_id, $customer_id)
+    {
+        CardDetail::updateOrCreate(['user_id' => $user_id, 'card_number' => $cardData['card']['last4']], [
+            'user_id' => $user_id,
+            'customer_id' => $customer_id,
+            'card_id' => $cardData['card']['id'],
+            'name' => $cardData['card']['name'],
+            'card_number' => $cardData['card']['last4'],
+            'brand' => $cardData['card']['brand'],
+            'month' => $cardData['card']['exp_month'],
+            'year' => $cardData['card']['exp_year'],
+            'created_at' => date('Y-m-d H:i:s'),
+            'updated_at' => date('Y-m-d H:i:s'),
+        ]);
     }
 }

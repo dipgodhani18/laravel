@@ -142,7 +142,8 @@ if (window.Stripe) {
     const elements = stripe.elements();
 
     const card = elements.create('card', {
-        hidePostalCode: true
+        hidePostalCode: true,
+
     });
     card.mount('#card-element');
 
@@ -171,10 +172,12 @@ if (window.Stripe) {
 }
 
 function createSubscription(token) {
+    const plan_id = $("#planId").val();
     $.ajax({
         url: "{{ route('createSubscription') }}",
         type: "POST",
         data: {
+            plan_id,
             data: token, // Send token object
             _token: "{{ csrf_token() }}"
         },
